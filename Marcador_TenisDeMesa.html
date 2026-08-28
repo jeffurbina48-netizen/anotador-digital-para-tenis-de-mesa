@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcador — Torneo de Tenis de Mesa</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #ffffff;
+    --bg2:       #f4f6f8;
+    --bg3:       #eaf0f5;
+    --text:      #1a2b3c;
+    --text2:     #5a7a90;
+    --text3:     #9ab0be;
+    --border:    rgba(90,122,144,0.2);
+    --border2:   rgba(90,122,144,0.4);
+    --teal:      #1D9E75;
+    --teal-dark: #0F6E56;
+    --teal-bg:   #E1F5EE;
+    --blue:      #065A82;
+    --blue-mid:  #1C7293;
+    --blue-bg:   #E8F4F8;
+    --gold:      #BA7517;
+    --gold-bg:   #FAEEDA;
+    --radius:    12px;
+    --radius-sm: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #1a1a1a;
+      --bg2:       #242424;
+      --bg3:       #2e2e2e;
+      --text:      #e8f0f5;
+      --text2:     #8aacbc;
+      --text3:     #5a7a8a;
+      --border:    rgba(138,172,188,0.15);
+      --border2:   rgba(138,172,188,0.3);
+      --teal-bg:   #04342C;
+      --blue-bg:   #042C53;
+      --gold-bg:   #412402;
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  header {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 600px;
+    padding: 1.25rem 1.25rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Player names ── */
+  .names-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+
+  .name-input {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    width: 100%;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .name-input:focus { border-color: var(--blue-mid); }
+
+  .vs-label {
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* ── Sets won row ── */
+  .sets-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .set-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .set-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text3);
+    transition: background 0.2s, color 0.2s;
+  }
+  .set-dot.won  { background: var(--teal); border-color: var(--teal-dark); color: #E1F5EE; }
+  .set-dot.active { border: 1.5px solid var(--blue-mid); color: var(--blue-mid); background: var(--blue-bg); }
+
+  .set-label-center {
+    font-size: 12px;
+    color: var(--text3);
+    text-align: center;
+  }
+
+  /* ── Main scoreboard ── */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .score-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 0.5rem 1rem;
+    background: var(--bg2);
+    transition: background 0.25s;
+  }
+  .score-panel.leading { background: var(--teal-bg); }
+  .score-panel.set-winner { background: var(--teal); }
+  .score-panel.match-winner { background: var(--blue); }
+
+  .score-num {
+    font-size: 80px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--text);
+    transition: color 0.25s, transform 0.08s;
+    user-select: none;
+  }
+  .score-panel.leading .score-num   { color: var(--teal-dark); }
+  .score-panel.set-winner .score-num { color: #E1F5EE; }
+  .score-panel.match-winner .score-num { color: #E8F4F8; }
+
+  .score-num.bump { transform: scale(1.08); }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .btn-pt {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border2);
+    background: var(--bg);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    transition: background 0.1s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-pt:active { transform: scale(0.9); background: var(--bg3); }
+  .btn-pt.minus  { width: 38px; height: 38px; font-size: 18px; color: var(--text2); }
+
+  .divider-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border-left: 0.5px solid var(--border);
+    border-right: 0.5px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    writing-mode: vertical-rl;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Status bar ── */
+  .status {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text2);
+    min-height: 22px;
+    margin-bottom: 0.75rem;
+    transition: color 0.2s;
+  }
+  .status.win { color: var(--teal-dark); font-weight: 500; font-size: 15px; }
+  .status.match-win { color: var(--blue); font-weight: 500; font-size: 16px; }
+
+  /* ── History chips ── */
+  .history {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    min-height: 10px;
+  }
+
+  .set-chip {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .set-chip strong { color: var(--text); font-weight: 500; }
+
+  /* ── Action buttons ── */
+  .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 9px 20px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border2);
+    background: var(--bg);
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.1s;
+  }
+  .btn-action:hover   { background: var(--bg2); }
+  .btn-action:active  { background: var(--bg3); }
+  .btn-action.primary { background: var(--blue); border-color: var(--blue); color: #E8F4F8; }
+  .btn-action.primary:hover { background: var(--blue-mid); }
+  .btn-action.hidden  { display: none; }
+
+  /* ── Confetti canvas ── */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── SVG icons ── */
+  .ico { width:18px; height:18px; stroke: currentColor; fill:none; stroke-width:2;
+         stroke-linecap:round; stroke-linejoin:round; vertical-align:-3px; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<header>
+  <h1>Tenis de Mesa</h1>
+  <p>3 sets · primero en ganar 2 · 11 puntos por set (deuce a 10)</p>
+</header>
+
+<div class="card">
+  <!-- Names -->
+  <div class="names-row">
+    <input class="name-input" id="name-a" value="Jugador 1" oninput="render()" autocomplete="off">
+    <div class="vs-label">vs</div>
+    <input class="name-input" id="name-b" value="Jugador 2" oninput="render()" autocomplete="off">
+  </div>
+
+  <!-- Sets won -->
+  <div class="sets-row">
+    <div class="set-dots" id="dots-a"></div>
+    <div class="set-label-center" id="set-label-center">Set 1</div>
+    <div class="set-dots" id="dots-b"></div>
+  </div>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <div class="score-panel" id="panel-a">
+      <div class="score-num" id="score-a">0</div>
+      <div class="btn-row">
+        <button class="btn-pt minus" onclick="addPoint('a',-1)" title="Restar punto">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn-pt" onclick="addPoint('a',1)" title="Sumar punto">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="divider-col" id="divider">SET 1</div>
+
+    <div class="score-panel" id="panel-b">
+      <div class="score-num" id="score-b">0</div>
+      <div class="btn-row">
+        <button class="btn-pt" onclick="addPoint('b',1)" title="Sumar punto">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn-pt minus" onclick="addPoint('b',-1)" title="Restar punto">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status" id="status"></div>
+
+  <!-- Set history -->
+  <div class="history" id="history"></div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-action hidden" id="btn-next" onclick="nextSet()">
+      <svg class="ico" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      Siguiente set
+    </button>
+    <button class="btn-action primary" onclick="resetMatch()">
+      <svg class="ico" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Nuevo partido
+    </button>
+  </div>
+</div>
+
+<script>
+let state = {
+  scores:    [0, 0],
+  setsWon:   [0, 0],
+  history:   [],
+  currentSet: 1,
+  matchOver: false,
+  setOver:   false
+};
+
+function getSetWinner(a, b) {
+  if (a >= 11 && a >= b + 2) return 0;
+  if (b >= 11 && b >= a + 2) return 1;
+  return null;
+}
+
+function addPoint(player, delta) {
+  if (state.matchOver) return;
+  if (state.setOver && delta > 0) return;
+  const idx = player === 'a' ? 0 : 1;
+  state.scores[idx] = Math.max(0, state.scores[idx] + delta);
+  const w = getSetWinner(state.scores[0], state.scores[1]);
+  state.setOver = w !== null;
+
+  if (delta > 0) {
+    const el = document.getElementById('score-' + player);
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 120);
+  }
+  render();
+}
+
+function nextSet() {
+  const [a, b] = state.scores;
+  const winner = getSetWinner(a, b);
+  if (winner === null) return;
+  state.setsWon[winner]++;
+  state.history.push([a, b]);
+  state.scores = [0, 0];
+  state.currentSet++;
+  state.setOver = false;
+  if (state.setsWon[0] === 2 || state.setsWon[1] === 2) {
+    state.matchOver = true;
+    launchConfetti();
+  }
+  render();
+}
+
+function resetMatch() {
+  state = { scores:[0,0], setsWon:[0,0], history:[], currentSet:1, matchOver:false, setOver:false };
+  stopConfetti();
+  render();
+}
+
+function render() {
+  const nameA = document.getElementById('name-a').value || 'Jugador 1';
+  const nameB = document.getElementById('name-b').value || 'Jugador 2';
+  const [sa, sb] = state.scores;
+  const [wa, wb] = state.setsWon;
+  const winner = getSetWinner(sa, sb);
+
+  document.getElementById('score-a').textContent = sa;
+  document.getElementById('score-b').textContent = sb;
+  document.getElementById('divider').textContent = 'SET ' + state.currentSet;
+  document.getElementById('set-label-center').textContent = 'Set ' + state.currentSet;
+
+  const pA = document.getElementById('panel-a');
+  const pB = document.getElementById('panel-b');
+  pA.className = 'score-panel';
+  pB.className = 'score-panel';
+
+  if (state.matchOver) {
+    if (wa === 2) pA.className = 'score-panel match-winner';
+    else          pB.className = 'score-panel match-winner';
+  } else if (winner !== null) {
+    if (winner === 0) pA.className = 'score-panel set-winner';
+    else              pB.className = 'score-panel set-winner';
+  } else {
+    if (sa > sb) pA.className = 'score-panel leading';
+    else if (sb > sa) pB.className = 'score-panel leading';
+  }
+
+  ['a','b'].forEach((p, i) => {
+    const won = state.setsWon[i];
+    const dots = document.getElementById('dots-' + p);
+    dots.innerHTML = '';
+    for (let s = 0; s < 2; s++) {
+      const d = document.createElement('div');
+      const histScore = state.history[s] ? state.history[s][i] : null;
+      d.className = 'set-dot' + (s < won ? ' won' : (s === won && !state.matchOver ? ' active' : ''));
+      d.textContent = histScore !== null ? histScore : (s === won && !state.matchOver ? '●' : '○');
+      dots.appendChild(d);
+    }
+  });
+
+  const hist = document.getElementById('history');
+  hist.innerHTML = '';
+  state.history.forEach((h, i) => {
+    const setWin = h[0] > h[1] ? nameA : nameB;
+    const chip = document.createElement('div');
+    chip.className = 'set-chip';
+    chip.innerHTML = `Set ${i+1}: <strong>${h[0]} – ${h[1]}</strong> <span style="color:var(--text3)">(${setWin})</span>`;
+    hist.appendChild(chip);
+  });
+
+  const status = document.getElementById('status');
+  const btnNext = document.getElementById('btn-next');
+
+  if (state.matchOver) {
+    const mw = wa === 2 ? nameA : nameB;
+    status.textContent = mw + ' gana el partido! 🏆';
+    status.className = 'status match-win';
+    btnNext.className = 'btn-action hidden';
+  } else if (winner !== null) {
+    const sw = winner === 0 ? nameA : nameB;
+    const deuced = sa >= 10 && sb >= 10;
+    status.textContent = (deuced ? 'Deuce resuelto — ' : '') + sw + ' gana el set ' + state.currentSet + '!';
+    status.className = 'status win';
+    btnNext.className = 'btn-action';
+  } else {
+    const total = sa + sb;
+    const deuce = sa >= 10 && sb >= 10;
+    if (deuce) {
+      status.textContent = 'Deuce — se necesitan 2 puntos de diferencia';
+      status.className = 'status win';
+    } else if (sa === 10 || sb === 10) {
+      const leader = sa === 10 ? nameA : nameB;
+      status.textContent = leader + ' al set — un punto más';
+      status.className = 'status win';
+    } else if (total > 0 && total % 2 === 0) {
+      status.textContent = 'Cambio de servicio';
+      status.className = 'status';
+    } else {
+      status.textContent = '';
+      status.className = 'status';
+    }
+    btnNext.className = 'btn-action hidden';
+  }
+}
+
+/* ── Confetti ─────────────────────────────────────────── */
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [], animId = null;
+const COLORS = ['#1D9E75','#065A82','#EF9F27','#D4537E','#7F77DD','#E24B4A'];
+
+function launchConfetti() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  particles = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    w: Math.random() * 10 + 5,
+    h: Math.random() * 6 + 3,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    rot: Math.random() * Math.PI * 2,
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 3 + 2,
+    vr: (Math.random() - 0.5) * 0.15,
+    life: 1
+  }));
+  if (animId) cancelAnimationFrame(animId);
+  animateConfetti();
+  setTimeout(stopConfetti, 4000);
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  let alive = false;
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.008;
+    if (p.y < canvas.height && p.life > 0) alive = true;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+  });
+  if (alive) animId = requestAnimationFrame(animateConfetti);
+  else stopConfetti();
+}
+
+function stopConfetti() {
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = [];
+}
+
+render();
+</script>
+</body>
+</html>
