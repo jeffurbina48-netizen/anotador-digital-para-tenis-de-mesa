@@ -3,301 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marcador — Torneo de Tenis de Mesa</title>
+<title>Marcador PRO — Tenis de Mesa</title>
 <style>
+  /* Base y Reset */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:        #ffffff;
-    --bg2:       #f4f6f8;
-    --bg3:       #eaf0f5;
-    --text:      #1a2b3c;
-    --text2:     #5a7a90;
-    --text3:     #9ab0be;
-    --border:    rgba(90,122,144,0.2);
-    --border2:   rgba(90,122,144,0.4);
-    --teal:      #1D9E75;
-    --teal-dark: #0F6E56;
-    --teal-bg:   #E1F5EE;
-    --blue:      #065A82;
-    --blue-mid:  #1C7293;
-    --blue-bg:   #E8F4F8;
-    --gold:      #BA7517;
-    --gold-bg:   #FAEEDA;
-    --radius:    12px;
-    --radius-sm: 8px;
-  }
+    --bg-app:        #0f172a;
+    --bg-card:       #1e293b;
+    --text-main:     #f8fafc;
+    --text-muted:    #94a3b8;
+    --border-color:  #334155;
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg:        #1a1a1a;
-      --bg2:       #242424;
-      --bg3:       #2e2e2e;
-      --text:      #e8f0f5;
-      --text2:     #8aacbc;
-      --text3:     #5a7a8a;
-      --border:    rgba(138,172,188,0.15);
-      --border2:   rgba(138,172,188,0.3);
-      --teal-bg:   #04342C;
-      --blue-bg:   #042C53;
-      --gold-bg:   #412402;
-    }
+    /* Identidad Jugadores */
+    --p1-main:       #3b82f6; 
+    --p1-bg:         rgba(59, 130, 246, 0.12);
+    --p1-border:     rgba(59, 130, 246, 0.4);
+    --p1-glow:       0 0 20px rgba(59, 130, 246, 0.3);
+
+    --p2-main:       #f97316; 
+    --p2-bg:         rgba(249, 115, 22, 0.12);
+    --p2-border:     rgba(249, 115, 22, 0.4);
+    --p2-glow:       0 0 20px rgba(249, 115, 22, 0.3);
+
+    --win-color:     #10b981;
+    --alert-color:   #ef4444;
+    --radius:        20px;
   }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-app);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem 1rem 3rem;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
   }
 
-  header {
-    width: 100%;
-    max-width: 600px;
-    text-align: center;
-    margin-bottom: 1.75rem;
-  }
+  /* Animaciones Keyframes */
+  @keyframes pulseGlow { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+  @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes slideScore { 0% { transform: translateY(-10px); opacity: 0.5; } 100% { transform: translateY(0); opacity: 1; } }
+  @keyframes flashDeuce { 0%, 100% { background: rgba(239, 68, 68, 0.1); color: var(--alert-color); } 50% { background: rgba(239, 68, 68, 0.3); color: #fff; } }
 
-  header h1 {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text2);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
+  /* Cabecera */
+  header { text-align: center; margin-bottom: 2rem; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+  header h1 { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  header p { font-size: 14px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
-  header p {
-    font-size: 12px;
-    color: var(--text3);
-  }
-
+  /* Contenedor Principal */
   .card {
-    background: var(--bg);
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    width: 100%;
-    max-width: 600px;
-    padding: 1.25rem 1.25rem 1rem;
-    margin-bottom: 1rem;
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+    width: 100%; max-width: 700px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* ── Player names ── */
-  .names-row {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 1.25rem;
-  }
-
+  /* Entradas de Nombres */
+  .names-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; margin-bottom: 1.5rem; align-items: center; }
   .name-input {
-    background: var(--bg2);
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 8px 10px;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text);
-    width: 100%;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.15s;
+    background: transparent; border: none; border-bottom: 2px solid var(--border-color);
+    padding: 10px 5px; font-size: 20px; font-weight: 700; color: var(--text-main);
+    width: 100%; text-align: center; outline: none; transition: all 0.3s;
   }
-  .name-input:focus { border-color: var(--blue-mid); }
+  .theme-p1-text:focus { border-bottom-color: var(--p1-main); box-shadow: 0 10px 10px -10px var(--p1-main); }
+  .theme-p2-text:focus { border-bottom-color: var(--p2-main); box-shadow: 0 10px 10px -10px var(--p2-main); }
+  .vs-label { font-size: 14px; font-weight: 800; color: var(--border-color); }
 
-  .vs-label {
-    font-size: 12px;
-    color: var(--text3);
-    white-space: nowrap;
-    text-align: center;
-  }
+  /* Historial de Sets */
+  .sets-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 0 1rem; }
+  .set-dots { display: flex; gap: 10px; }
+  .set-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-color); transition: all 0.4s; }
+  .theme-p1-dots .set-dot.won { background: var(--p1-main); border-color: var(--p1-main); box-shadow: var(--p1-glow); }
+  .theme-p2-dots .set-dot.won { background: var(--p2-main); border-color: var(--p2-main); box-shadow: var(--p2-glow); }
+  .set-label-center { font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
 
-  /* ── Sets won row ── */
-  .sets-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
+  /* Marcador y Paneles */
+  .scoreboard { display: grid; grid-template-columns: 1fr 2px 1fr; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 1.5rem; background: var(--bg-app); }
+  .divider-col { background: var(--border-color); }
 
-  .set-dots {
-    display: flex;
-    gap: 6px;
-  }
+  .score-panel { display: flex; flex-direction: column; align-items: center; padding: 3rem 1rem 2.5rem; position: relative; transition: background 0.5s ease; }
+  .score-panel.theme-p1 { background: var(--p1-bg); }
+  .score-panel.theme-p2 { background: var(--p2-bg); }
 
-  .set-dot {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 0.5px solid var(--border2);
-    background: var(--bg2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text3);
-    transition: background 0.2s, color 0.2s;
-  }
-  .set-dot.won  { background: var(--teal); border-color: var(--teal-dark); color: #E1F5EE; }
-  .set-dot.active { border: 1.5px solid var(--blue-mid); color: var(--blue-mid); background: var(--blue-bg); }
+  /* Saque */
+  .service-indicator { position: absolute; top: 20px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0; transition: opacity 0.3s; }
+  .score-panel.serving .service-indicator { opacity: 1; background: var(--win-color); color: #000; animation: pulseGlow 2s infinite; }
+  .service-indicator::after { content: "SAQUE"; }
 
-  .set-label-center {
-    font-size: 12px;
-    color: var(--text3);
-    text-align: center;
-  }
+  /* Números */
+  .score-num { font-size: 130px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 10px 20px rgba(0,0,0,0.5); user-select: none; transition: color 0.3s; }
+  .score-panel.theme-p1 .score-num { color: var(--p1-main); }
+  .score-panel.theme-p2 .score-num { color: var(--p2-main); }
+  .score-num.bump { animation: slideScore 0.15s ease-out; }
 
-  /* ── Main scoreboard ── */
-  .scoreboard {
-    display: grid;
-    grid-template-columns: 1fr 48px 1fr;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1rem;
-  }
+  /* Botones */
+  .btn-row { display: flex; gap: 20px; margin-top: 25px; }
+  .btn-pt { width: 65px; height: 65px; border-radius: 50%; border: none; font-size: 32px; font-weight: 300; cursor: pointer; color: #fff; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+  .btn-pt:active { transform: scale(0.85); }
+  .theme-p1 .btn-pt { background: var(--p1-main); box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3); }
+  .theme-p2 .btn-pt { background: var(--p2-main); box-shadow: 0 8px 15px rgba(249, 115, 22, 0.3); }
+  .btn-pt.minus { width: 45px; height: 45px; font-size: 24px; background: transparent !important; border: 2px solid currentColor; box-shadow: none !important; }
+  .theme-p1 .btn-pt.minus { color: var(--p1-main); }
+  .theme-p2 .btn-pt.minus { color: var(--p2-main); }
 
-  .score-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.25rem 0.5rem 1rem;
-    background: var(--bg2);
-    transition: background 0.25s;
-  }
-  .score-panel.leading { background: var(--teal-bg); }
-  .score-panel.set-winner { background: var(--teal); }
-  .score-panel.match-winner { background: var(--blue); }
+  /* Barra de Estado */
+  .status { text-align: center; font-size: 16px; font-weight: 700; padding: 12px; border-radius: 12px; margin-bottom: 1.5rem; min-height: 48px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; border: 1px solid transparent; letter-spacing: 0.5px; }
+  .status.normal { color: var(--text-muted); background: var(--bg-app); }
+  .status.highlight { color: #000; background: var(--win-color); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+  .status.deuce { animation: flashDeuce 1.5s infinite; border-color: var(--alert-color); font-size: 18px; letter-spacing: 2px; }
+  .status.advantage { color: var(--p2-main); background: var(--p2-bg); border-color: var(--p2-border); }
 
-  .score-num {
-    font-size: 80px;
-    font-weight: 300;
-    line-height: 1;
-    color: var(--text);
-    transition: color 0.25s, transform 0.08s;
-    user-select: none;
-  }
-  .score-panel.leading .score-num   { color: var(--teal-dark); }
-  .score-panel.set-winner .score-num { color: #E1F5EE; }
-  .score-panel.match-winner .score-num { color: #E8F4F8; }
+  /* Historial de resultados */
+  .history { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+  .set-chip { background: var(--bg-app); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 500; }
 
-  .score-num.bump { transform: scale(1.08); }
+  /* Acciones inferiores */
+  .actions { display: flex; gap: 15px; justify-content: center; }
+  .btn-action { padding: 14px 28px; border-radius: 12px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
+  .btn-action:active { transform: translateY(3px); }
+  .btn-action.primary { background: var(--text-main); color: var(--bg-app); }
+  .btn-action.success { background: var(--win-color); color: #000; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+  .btn-action.hidden { display: none; }
 
-  .btn-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
-  }
-
-  .btn-pt {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 0.5px solid var(--border2);
-    background: var(--bg);
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text);
-    transition: background 0.1s, transform 0.08s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .btn-pt:active { transform: scale(0.9); background: var(--bg3); }
-  .btn-pt.minus  { width: 38px; height: 38px; font-size: 18px; color: var(--text2); }
-
-  .divider-col {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-    border-left: 0.5px solid var(--border);
-    border-right: 0.5px solid var(--border);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text3);
-    writing-mode: vertical-rl;
-    letter-spacing: 0.05em;
-  }
-
-  /* ── Status bar ── */
-  .status {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text2);
-    min-height: 22px;
-    margin-bottom: 0.75rem;
-    transition: color 0.2s;
-  }
-  .status.win { color: var(--teal-dark); font-weight: 500; font-size: 15px; }
-  .status.match-win { color: var(--blue); font-weight: 500; font-size: 16px; }
-
-  /* ── History chips ── */
-  .history {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 0.75rem;
-    min-height: 10px;
-  }
-
-  .set-chip {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .set-chip strong { color: var(--text); font-weight: 500; }
-
-  /* ── Action buttons ── */
-  .actions {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn-action {
-    padding: 9px 20px;
-    border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border2);
-    background: var(--bg);
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.1s;
-  }
-  .btn-action:hover   { background: var(--bg2); }
-  .btn-action:active  { background: var(--bg3); }
-  .btn-action.primary { background: var(--blue); border-color: var(--blue); color: #E8F4F8; }
-  .btn-action.primary:hover { background: var(--blue-mid); }
-  .btn-action.hidden  { display: none; }
-
-  /* ── Confetti canvas ── */
-  #confetti-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  /* ── SVG icons ── */
-  .ico { width:18px; height:18px; stroke: currentColor; fill:none; stroke-width:2;
-         stroke-linecap:round; stroke-linejoin:round; vertical-align:-3px; }
+  /* Canvas Confeti */
+  #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+  .ico { width:22px; height:22px; stroke: currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
 </style>
 </head>
 <body>
@@ -305,114 +138,117 @@
 <canvas id="confetti-canvas"></canvas>
 
 <header>
-  <h1>Tenis de Mesa</h1>
-  <p>3 sets · primero en ganar 2 · 11 puntos por set (deuce a 10)</p>
+  <h1>
+    <svg class="ico" style="stroke: var(--p2-main);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+    Tenis de Mesa
+  </h1>
+  <p>Saque cada 2 pts • Diferencia de 2 en Deuce (10-10)</p>
 </header>
 
 <div class="card">
-  <!-- Names -->
   <div class="names-row">
-    <input class="name-input" id="name-a" value="Jugador 1" oninput="render()" autocomplete="off">
-    <div class="vs-label">vs</div>
-    <input class="name-input" id="name-b" value="Jugador 2" oninput="render()" autocomplete="off">
+    <!-- IDs Neutros (left/right) en lugar de fijos (a/b) -->
+    <input class="name-input theme-p1-text" id="name-left" value="Jugador 1" oninput="render()" autocomplete="off">
+    <div class="vs-label">VS</div>
+    <input class="name-input theme-p2-text" id="name-right" value="Jugador 2" oninput="render()" autocomplete="off">
   </div>
 
-  <!-- Sets won -->
   <div class="sets-row">
     <div class="set-dots" id="dots-a"></div>
     <div class="set-label-center" id="set-label-center">Set 1</div>
     <div class="set-dots" id="dots-b"></div>
   </div>
 
-  <!-- Scoreboard -->
   <div class="scoreboard">
     <div class="score-panel" id="panel-a">
+      <div class="service-indicator"></div>
       <div class="score-num" id="score-a">0</div>
       <div class="btn-row">
-        <button class="btn-pt minus" onclick="addPoint('a',-1)" title="Restar punto">
-          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <button class="btn-pt" onclick="addPoint('a',1)" title="Sumar punto">
-          <svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
+        <button class="btn-pt minus" title="Restar">-</button>
+        <button class="btn-pt" title="Sumar">+</button>
       </div>
     </div>
-
-    <div class="divider-col" id="divider">SET 1</div>
-
+    <div class="divider-col"></div>
     <div class="score-panel" id="panel-b">
+      <div class="service-indicator"></div>
       <div class="score-num" id="score-b">0</div>
       <div class="btn-row">
-        <button class="btn-pt" onclick="addPoint('b',1)" title="Sumar punto">
-          <svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <button class="btn-pt minus" onclick="addPoint('b',-1)" title="Restar punto">
-          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
+        <button class="btn-pt" title="Sumar">+</button>
+        <button class="btn-pt minus" title="Restar">-</button>
       </div>
     </div>
   </div>
 
-  <!-- Status -->
-  <div class="status" id="status"></div>
-
-  <!-- Set history -->
+  <div class="status normal" id="status"></div>
   <div class="history" id="history"></div>
 
-  <!-- Actions -->
   <div class="actions">
-    <button class="btn-action hidden" id="btn-next" onclick="nextSet()">
-      <svg class="ico" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      Siguiente set
+    <button class="btn-action success hidden" id="btn-next" onclick="nextSet()">
+      Cambiar Lado y Siguiente Set
+      <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
     <button class="btn-action primary" onclick="resetMatch()">
-      <svg class="ico" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      Nuevo partido
+      <svg class="ico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Reiniciar
     </button>
   </div>
 </div>
 
 <script>
 let state = {
-  scores:    [0, 0],
-  setsWon:   [0, 0],
-  history:   [],
-  currentSet: 1,
-  matchOver: false,
-  setOver:   false
+  scores: [0, 0], setsWon: [0, 0], history: [],
+  currentSet: 1, matchOver: false, setOver: false, swapped: false
 };
 
 function getSetWinner(a, b) {
-  if (a >= 11 && a >= b + 2) return 0;
-  if (b >= 11 && b >= a + 2) return 1;
+  if (a >= 11 && a - b >= 2) return 0;
+  if (b >= 11 && b - a >= 2) return 1;
   return null;
 }
 
-function addPoint(player, delta) {
+function getServerIdx(s0, s1) {
+  const total = s0 + s1;
+  if (s0 >= 10 && s1 >= 10) return total % 2 === 0 ? 0 : 1;
+  return Math.floor(total / 2) % 2 === 0 ? 0 : 1;
+}
+
+function addPoint(playerIdx, delta) {
   if (state.matchOver) return;
   if (state.setOver && delta > 0) return;
-  const idx = player === 'a' ? 0 : 1;
-  state.scores[idx] = Math.max(0, state.scores[idx] + delta);
+  
+  state.scores[playerIdx] = Math.max(0, state.scores[playerIdx] + delta);
   const w = getSetWinner(state.scores[0], state.scores[1]);
   state.setOver = w !== null;
 
   if (delta > 0) {
-    const el = document.getElementById('score-' + player);
+    const panelSide = (playerIdx === 0) !== state.swapped ? 'a' : 'b';
+    const el = document.getElementById('score-' + panelSide);
+    el.classList.remove('bump');
+    void el.offsetWidth;
     el.classList.add('bump');
-    setTimeout(() => el.classList.remove('bump'), 120);
   }
   render();
 }
 
 function nextSet() {
-  const [a, b] = state.scores;
-  const winner = getSetWinner(a, b);
+  const [s0, s1] = state.scores;
+  const winner = getSetWinner(s0, s1);
   if (winner === null) return;
+  
   state.setsWon[winner]++;
-  state.history.push([a, b]);
+  state.history.push([s0, s1]);
   state.scores = [0, 0];
   state.currentSet++;
   state.setOver = false;
+  state.swapped = !state.swapped;
+
+  // CORRECCIÓN PRINCIPAL: Invertimos físicamente el texto en el DOM
+  const inputLeft = document.getElementById('name-left');
+  const inputRight = document.getElementById('name-right');
+  const temp = inputLeft.value;
+  inputLeft.value = inputRight.value;
+  inputRight.value = temp;
+
   if (state.setsWon[0] === 2 || state.setsWon[1] === 2) {
     state.matchOver = true;
     launchConfetti();
@@ -421,146 +257,134 @@ function nextSet() {
 }
 
 function resetMatch() {
-  state = { scores:[0,0], setsWon:[0,0], history:[], currentSet:1, matchOver:false, setOver:false };
+  state = { scores:[0,0], setsWon:[0,0], history:[], currentSet:1, matchOver:false, setOver:false, swapped:false };
+  // Reiniciar campos a valor por defecto
+  document.getElementById('name-left').value = 'Jugador 1';
+  document.getElementById('name-right').value = 'Jugador 2';
   stopConfetti();
   render();
 }
 
 function render() {
-  const nameA = document.getElementById('name-a').value || 'Jugador 1';
-  const nameB = document.getElementById('name-b').value || 'Jugador 2';
-  const [sa, sb] = state.scores;
-  const [wa, wb] = state.setsWon;
-  const winner = getSetWinner(sa, sb);
+  const leftIdx  = state.swapped ? 1 : 0;
+  const rightIdx = state.swapped ? 0 : 1;
 
-  document.getElementById('score-a').textContent = sa;
-  document.getElementById('score-b').textContent = sb;
-  document.getElementById('divider').textContent = 'SET ' + state.currentSet;
+  const iL = document.getElementById('name-left');
+  const iR = document.getElementById('name-right');
+
+  // Ajustar el color de foco del texto dinámicamente según el jugador que esté de ese lado
+  iL.className = 'name-input ' + (leftIdx === 0 ? 'theme-p1-text' : 'theme-p2-text');
+  iR.className = 'name-input ' + (rightIdx === 0 ? 'theme-p1-text' : 'theme-p2-text');
+
+  // Mapeamos los nombres lógicos extraídos del DOM basándonos en si están invertidos o no
+  const names = [];
+  names[leftIdx] = iL.value || 'Jugador 1';
+  names[rightIdx] = iR.value || 'Jugador 2';
+
+  const [s0, s1] = state.scores;
+  const winner = getSetWinner(s0, s1);
+  const serverIdx = getServerIdx(s0, s1);
+
+  document.getElementById('score-a').textContent = state.scores[leftIdx];
+  document.getElementById('score-b').textContent = state.scores[rightIdx];
   document.getElementById('set-label-center').textContent = 'Set ' + state.currentSet;
 
   const pA = document.getElementById('panel-a');
   const pB = document.getElementById('panel-b');
-  pA.className = 'score-panel';
-  pB.className = 'score-panel';
+  const dotsA = document.getElementById('dots-a');
+  const dotsB = document.getElementById('dots-b');
 
-  if (state.matchOver) {
-    if (wa === 2) pA.className = 'score-panel match-winner';
-    else          pB.className = 'score-panel match-winner';
-  } else if (winner !== null) {
-    if (winner === 0) pA.className = 'score-panel set-winner';
-    else              pB.className = 'score-panel set-winner';
-  } else {
-    if (sa > sb) pA.className = 'score-panel leading';
-    else if (sb > sa) pB.className = 'score-panel leading';
+  pA.className = 'score-panel ' + (leftIdx === 0 ? 'theme-p1' : 'theme-p2');
+  pB.className = 'score-panel ' + (rightIdx === 0 ? 'theme-p1' : 'theme-p2');
+  dotsA.className = 'set-dots ' + (leftIdx === 0 ? 'theme-p1-dots' : 'theme-p2-dots');
+  dotsB.className = 'set-dots ' + (rightIdx === 0 ? 'theme-p1-dots' : 'theme-p2-dots');
+
+  if (!state.setOver && !state.matchOver) {
+    if (serverIdx === leftIdx) pA.classList.add('serving');
+    if (serverIdx === rightIdx) pB.classList.add('serving');
   }
 
-  ['a','b'].forEach((p, i) => {
-    const won = state.setsWon[i];
-    const dots = document.getElementById('dots-' + p);
-    dots.innerHTML = '';
+  pA.querySelector('.btn-pt.minus').setAttribute('onclick', `addPoint(${leftIdx},-1)`);
+  pA.querySelector('.btn-pt:not(.minus)').setAttribute('onclick', `addPoint(${leftIdx},1)`);
+  pB.querySelector('.btn-pt.minus').setAttribute('onclick', `addPoint(${rightIdx},-1)`);
+  pB.querySelector('.btn-pt:not(.minus)').setAttribute('onclick', `addPoint(${rightIdx},1)`);
+
+  [dotsA, dotsB].forEach((dotsEl, visPos) => {
+    const logicalIdx = visPos === 0 ? leftIdx : rightIdx;
+    const wonCount = state.setsWon[logicalIdx];
+    dotsEl.innerHTML = '';
     for (let s = 0; s < 2; s++) {
       const d = document.createElement('div');
-      const histScore = state.history[s] ? state.history[s][i] : null;
-      d.className = 'set-dot' + (s < won ? ' won' : (s === won && !state.matchOver ? ' active' : ''));
-      d.textContent = histScore !== null ? histScore : (s === won && !state.matchOver ? '●' : '○');
-      dots.appendChild(d);
+      d.className = 'set-dot ' + (s < wonCount ? 'won' : '');
+      dotsEl.appendChild(d);
     }
   });
 
   const hist = document.getElementById('history');
   hist.innerHTML = '';
   state.history.forEach((h, i) => {
-    const setWin = h[0] > h[1] ? nameA : nameB;
-    const chip = document.createElement('div');
-    chip.className = 'set-chip';
-    chip.innerHTML = `Set ${i+1}: <strong>${h[0]} – ${h[1]}</strong> <span style="color:var(--text3)">(${setWin})</span>`;
-    hist.appendChild(chip);
+    const setWinName = h[0] > h[1] ? names[0] : names[1];
+    const colorClass = h[0] > h[1] ? 'var(--p1-main)' : 'var(--p2-main)';
+    hist.innerHTML += `<div class="set-chip">Set ${i+1}: <strong>${h[0]} - ${h[1]}</strong> <span style="color:${colorClass}">(${setWinName})</span></div>`;
   });
 
   const status = document.getElementById('status');
   const btnNext = document.getElementById('btn-next');
 
   if (state.matchOver) {
-    const mw = wa === 2 ? nameA : nameB;
-    status.textContent = mw + ' gana el partido! 🏆';
-    status.className = 'status match-win';
+    status.innerHTML = `🏆 ¡${(state.setsWon[0] === 2 ? names[0] : names[1]).toUpperCase()} GANA EL PARTIDO!`;
+    status.className = 'status highlight';
     btnNext.className = 'btn-action hidden';
   } else if (winner !== null) {
-    const sw = winner === 0 ? nameA : nameB;
-    const deuced = sa >= 10 && sb >= 10;
-    status.textContent = (deuced ? 'Deuce resuelto — ' : '') + sw + ' gana el set ' + state.currentSet + '!';
-    status.className = 'status win';
-    btnNext.className = 'btn-action';
+    status.innerHTML = `✅ ${winner === 0 ? names[0] : names[1]} asegura el set`;
+    status.className = 'status highlight';
+    btnNext.className = 'btn-action success';
   } else {
-    const total = sa + sb;
-    const deuce = sa >= 10 && sb >= 10;
-    if (deuce) {
-      status.textContent = 'Deuce — se necesitan 2 puntos de diferencia';
-      status.className = 'status win';
-    } else if (sa === 10 || sb === 10) {
-      const leader = sa === 10 ? nameA : nameB;
-      status.textContent = leader + ' al set — un punto más';
-      status.className = 'status win';
-    } else if (total > 0 && total % 2 === 0) {
-      status.textContent = 'Cambio de servicio';
-      status.className = 'status';
-    } else {
-      status.textContent = '';
-      status.className = 'status';
-    }
     btnNext.className = 'btn-action hidden';
+    if (s0 >= 10 && s1 >= 10) {
+      if (s0 === s1) { status.textContent = '🔥 DEUCE 🔥'; status.className = 'status deuce'; } 
+      else { status.textContent = `⚡ VENTAJA: ${s0 > s1 ? names[0].toUpperCase() : names[1].toUpperCase()}`; status.className = 'status advantage'; }
+    } else if (s0 === 10 || s1 === 10) {
+      status.textContent = `🎯 Point para set (${s0 === 10 ? names[0] : names[1]})`; status.className = 'status normal';
+    } else {
+      status.textContent = state.swapped ? '🔄 Lados de mesa invertidos' : 'Partido en curso'; status.className = 'status normal';
+    }
   }
 }
 
-/* ── Confetti ─────────────────────────────────────────── */
+// Lógica de confeti offline (Sin cambios)
 const canvas = document.getElementById('confetti-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [], animId = null;
-const COLORS = ['#1D9E75','#065A82','#EF9F27','#D4537E','#7F77DD','#E24B4A'];
 
 function launchConfetti() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  particles = Array.from({length: 120}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height - canvas.height,
-    w: Math.random() * 10 + 5,
-    h: Math.random() * 6 + 3,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    rot: Math.random() * Math.PI * 2,
-    vx: (Math.random() - 0.5) * 3,
-    vy: Math.random() * 3 + 2,
-    vr: (Math.random() - 0.5) * 0.15,
-    life: 1
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  particles = Array.from({length: 200}, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+    w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
+    c: ['#3b82f6','#f97316','#10b981','#facc15','#ec4899'][Math.floor(Math.random() * 5)],
+    r: Math.random() * Math.PI * 2, vx: (Math.random() - 0.5) * 6, vy: Math.random() * 4 + 3,
+    vr: (Math.random() - 0.5) * 0.2, l: 1
   }));
   if (animId) cancelAnimationFrame(animId);
   animateConfetti();
-  setTimeout(stopConfetti, 4000);
+  setTimeout(stopConfetti, 6000);
 }
 
 function animateConfetti() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let alive = false;
   particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.008;
-    if (p.y < canvas.height && p.life > 0) alive = true;
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, p.life);
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-    ctx.fillStyle = p.color;
-    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-    ctx.restore();
+    p.x += p.vx; p.y += p.vy; p.r += p.vr; p.l -= 0.004;
+    if (p.y < canvas.height && p.l > 0) alive = true;
+    ctx.save(); ctx.globalAlpha = Math.max(0, p.l); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
   });
   if (alive) animId = requestAnimationFrame(animateConfetti);
   else stopConfetti();
 }
 
-function stopConfetti() {
-  if (animId) { cancelAnimationFrame(animId); animId = null; }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles = [];
-}
+function stopConfetti() { if (animId) { cancelAnimationFrame(animId); animId = null; } ctx.clearRect(0, 0, canvas.width, canvas.height); particles = []; }
 
 render();
 </script>
